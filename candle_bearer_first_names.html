@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candle Bearer – Catechism Class</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#fff8df,#f7e7b5);margin:0;min-height:100vh;display:flex;justify-content:center;align-items:center;color:#4b3517}
+  .card{width:min(92%,520px);background:#fffdf7;border-radius:28px;padding:28px 22px;box-shadow:0 10px 35px rgba(80,55,20,.18);text-align:center}
+  .candle{font-size:58px;margin-bottom:4px}
+  h1{font-size:28px;margin:4px 0 6px}
+  .sub{font-size:15px;color:#765d36;margin-bottom:22px}
+  #name{font-size:34px;font-weight:800;min-height:48px;margin:18px 0;color:#8a5a10}
+  button{border:0;border-radius:16px;padding:15px 20px;font-size:17px;font-weight:700;cursor:pointer;margin:6px}
+  #pick{background:#d8a83e;color:white;min-width:230px}
+  #reset{background:#eee3c8;color:#5b4728;font-size:14px}
+  .status{margin-top:16px;font-size:14px;color:#765d36}
+  .list{margin-top:22px;text-align:left;background:#faf3df;border-radius:18px;padding:14px 18px}
+  .list h2{font-size:17px;margin:0 0 8px}
+  .student{padding:5px 0;border-bottom:1px solid #eadfc5;font-size:14px}
+  .student:last-child{border-bottom:0}
+  .chosen{font-weight:700}
+  .note{font-size:12px;color:#8a7656;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="candle">🕯️</div>
+  <h1>Candle Bearer</h1>
+  <div class="sub">Catechism Class • Who will be the Light for Jesus this week?</div>
+  <div id="name">Ready to choose!</div>
+  <button id="pick">✨ Choose This Week's Candle Bearer</button>
+  <button id="reset">Start New Round</button>
+  <div class="status" id="status"></div>
+  <div class="list">
+    <h2>Students</h2>
+    <div id="students"></div>
+  </div>
+  <div class="note">Each student is chosen once before the rotation starts over. Only first names are displayed. Your choices are saved on this device.</div>
+</div>
+
+<script>
+const students = [
+  {id: 1, name: "Sebastian"},
+  {id: 2, name: "Valentin"},
+  {id: 3, name: "Ellery"},
+  {id: 4, name: "Alan"},
+  {id: 5, name: "Christopher"},
+  {id: 6, name: "Alessandra"},
+  {id: 7, name: "Nataliebay"},
+  {id: 8, name: "Jocelyn"},
+  {id: 9, name: "Jared"},
+  {id: 10, name: "Valentina"},
+  {id: 11, name: "Alexa"},
+  {id: 12, name: "Aylin"},
+  {id: 13, name: "Valentina"},
+  {id: 14, name: "Jorge"},
+  {id: 15, name: "Sebastian"},
+  {id: 16, name: "Rosario"},
+  {id: 17, name: "Ailani"}
+];
+
+let remaining = JSON.parse(localStorage.getItem("candleRemaining") || "null");
+let history = JSON.parse(localStorage.getItem("candleHistory") || "[]");
+const studentIds = students.map(s => s.id);
+
+if(!remaining || !Array.isArray(remaining) || remaining.length===0) remaining=[...studentIds];
+
+function save(){
+  localStorage.setItem("candleRemaining",JSON.stringify(remaining));
+  localStorage.setItem("candleHistory",JSON.stringify(history));
+  render();
+}
+function render(){
+  const list=document.getElementById("students");
+  list.innerHTML="";
+  students.forEach(s=>{
+    const chosen=history.includes(s.id);
+    const d=document.createElement("div");
+    d.className="student"+(chosen?" chosen":"");
+    d.textContent=(chosen?"✓ ":"○ ")+s.name;
+    list.appendChild(d);
+  });
+  document.getElementById("status").textContent=`${remaining.length} student${remaining.length===1?"":"s"} left in this round • ${history.length} chosen`;
+}
+document.getElementById("pick").onclick=()=>{
+  if(remaining.length===0){remaining=[...studentIds];history=[];}
+  const i=Math.floor(Math.random()*remaining.length);
+  const winnerId=remaining.splice(i,1)[0];
+  const winner=students.find(s=>s.id===winnerId);
+  history.push(winnerId);
+  document.getElementById("name").textContent=winner.name;
+  save();
+};
+document.getElementById("reset").onclick=()=>{
+  if(confirm("Start a new round? All students will be eligible again.")){
+    remaining=[...studentIds];history=[];
+    document.getElementById("name").textContent="Ready to choose!";
+    save();
+  }
+};
+render();
+</script>
+</body>
+</html>
